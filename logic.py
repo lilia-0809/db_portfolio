@@ -11,7 +11,7 @@ class DB_Manager:
     def create_tables(self):
         conn = sqlite3.connect(self.database)
         with conn:
-            conn.execute('''CREATE TABLE projects (
+            conn.execute('''CREATE TABLE IF NOT EXISTS projects (
                             project_id INTEGER PRIMARY KEY,
                             user_id INTEGER,
                             project_name TEXT NOT NULL,
@@ -19,21 +19,27 @@ class DB_Manager:
                             url TEXT,
                             status_id INTEGER,
                             FOREIGN KEY(status_id) REFERENCES status(status_id)
-                        )''') 
-            conn.execute('''CREATE TABLE skills (
+                        )''')
+            conn.execute('''CREATE TABLE IF NOT EXISTS skills (
                             skill_id INTEGER PRIMARY KEY,
                             skill_name TEXT
                         )''')
-            conn.execute('''CREATE TABLE project_skills (
+            conn.execute('''CREATE TABLE IF NOT EXISTS project_skills (
                             project_id INTEGER,
                             skill_id INTEGER,
                             FOREIGN KEY(project_id) REFERENCES projects(project_id),
                             FOREIGN KEY(skill_id) REFERENCES skills(skill_id)
                         )''')
-            conn.execute('''CREATE TABLE status (
+            conn.execute('''CREATE TABLE IF NOT EXISTS status (
                             status_id INTEGER PRIMARY KEY,
                             status_name TEXT
                         )''')
+            conn.commit()
+
+    def add_photo_column(self):
+        conn = sqlite3.connect(self.database)
+        with conn:
+            conn.execute("ALTER TABLE projects ADD COLUMN photo TEXT")
             conn.commit()
 
     def __executemany(self, sql, data):
